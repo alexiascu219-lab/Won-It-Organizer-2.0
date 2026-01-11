@@ -2,7 +2,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { InventoryItem, AnalysisResult } from "./types";
 
-// Initialize AI directly
+// Always initialize with the process.env.API_KEY provided by Vercel
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
 export const analyzeItemImage = async (base64Image: string): Promise<AnalysisResult> => {
@@ -17,7 +17,7 @@ export const analyzeItemImage = async (base64Image: string): Promise<AnalysisRes
           },
         },
         {
-          text: "Identify this item. Provide a suggested name, a short category, and a brief description.",
+          text: "Identify this item from the photo. Provide a suggested name, a short category (e.g., Tools, Collectibles, Electronics), and a brief description.",
         },
       ],
     },
@@ -53,14 +53,14 @@ export const chatWithInventory = async (
   ).join('\n');
 
   const systemInstruction = `
-    You are the Won-It Storage Assistant. You help users find items in their inventory.
-    Current Inventory:
+    You are the Won-It Storage Assistant. You help users find items in their storage.
+    Current Inventory List:
     ${inventoryContext}
 
     Instructions:
-    1. Be concise.
-    2. If asked about an item's location, specify it clearly.
-    3. If you don't see the item in the list, suggest searching the physical area or check if it was named differently.
+    1. Be concise and friendly.
+    2. Tell the user EXACTLY where the item is based on the "Location" field.
+    3. If the item isn't in the list, suggest they might have misplaced it or haven't added it yet.
   `;
 
   const response = await ai.models.generateContent({
